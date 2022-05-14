@@ -9,18 +9,18 @@ const { FunctionInstance } = require('twilio/lib/rest/serverless/v1/service/func
 var chainIDArray=[]
 var tokenAddressArray=[]
 
-console.log("imported")
+ console.log("API script started")
 
 // function main(){
 //     chainIDArray=require("./app.js").chainIDArray
 //     tokenAddressArray=require("./app.js").tokenAddressArray
 
-//     // if(chainID != undefined){
+//    *** PREVIOUS IMPORTING EACH VALUE // if(chainID != undefined){
 //     //     chainIDArray.push(chainID)
 //     //     console.log(chainID)
 //     //     tokenAddressArray.push(tokenAddress)
 //     //     console.log("imported: "+chainIDArray.length)
-//     // }
+//     // } ***
 
 //     if(chainIDArray != undefined && chainIDArray.length > 0) console.log("length"+chainIDArray[0])
 // }
@@ -29,102 +29,117 @@ console.log("imported")
 
 //----------------------------------------------------------------------------------------------------------------
 
-// const TelegramBot = require('node-telegram-bot-api');
+const TelegramBot = require('node-telegram-bot-api');
 
-// // replace the value below with the Telegram token you receive from @BotFather
-// const token = '5357366311:AAGE-nYqdyT4f6O0gA2tV-zDkjWwGGS1TGg';
+// replace the value below with the Telegram token you receive from @BotFather
+const token = '5357366311:AAGE-nYqdyT4f6O0gA2tV-zDkjWwGGS1TGg';
 
-// // Create a bot that uses 'polling' to fetch new updates
-// const bot = new TelegramBot(token, {polling: true});
+// Create a bot that uses 'polling' to fetch new updates
+const bot = new TelegramBot(token, {polling: true});
 
-// const binanceAPIKey='DFAYPMDXCQSTTDIP8K5VZNUU4SPNMD5TUA'
-// const covalentAPIKey='ckey_285dfce5b86d4797983378f58c3'
-// const cmcAPIKey='4a71e39b-bc01-4cb8-8537-8adc5ac2c292'
-// const apiEndpointbase='https://api.covalenthq.com/v1'
+const binanceAPIKey='DFAYPMDXCQSTTDIP8K5VZNUU4SPNMD5TUA'
+const covalentAPIKey='ckey_285dfce5b86d4797983378f58c3'
+const cmcAPIKey='4a71e39b-bc01-4cb8-8537-8adc5ac2c292'
+const apiEndpointBase='https://api.covalenthq.com/v1'
 
-// const desiredPercentageChange=0                                             //has chain ID of all the tokens
-// const tokenAddressArray=['/0x333fd139caef6aa31056cc905987b77b1044d259'] //has token addresses of all the tokens
+const desiredPercentageChange=0                                             //has chain ID of all the tokens
+//const tokenAddressArray=['/0x333fd139caef6aa31056cc905987b77b1044d259'] //has token addresses of all the tokens
 
-// var listSize='10000000'                                                 //total size of the JSON data list fetched from API
+var listSize='10000000'                                                 //total size of the JSON data list fetched from API
 
-// var tokenHoldersArray=[]                                                //Number of token holders of all the tokens
+var tokenHoldersArray=[]                                                //Number of token holders of all the tokens
 
-// const chatID=1735223495
+const chatID=1735223495
 
-// function sendAlert(change, percentageDifferenceOfHolders, lastAmount, currentAmount){
+function sendAlert(change, percentageDifferenceOfHolders, lastAmount, currentAmount){
     
-//     let message = "*** " + change +" ***\n" + "Percentage Change = " +percentageDifferenceOfHolders + 
-//                   "\nLast Amount = " + lastAmount + "\n" +"Current Amount = " + currentAmount
+    let message = "*** " + change +" ***\n" + "Percentage Change = " +percentageDifferenceOfHolders + 
+                  "\nLast Amount = " + lastAmount + "\n" +"Current Amount = " + currentAmount
 
-//     bot.sendMessage(chatID,message)
+    bot.sendMessage(chatID,message)
 
-//     console.log("Message Sent: " + message)
+    console.log("Message Sent: " + message)
 
-// }
+}
 
 
 
-// async function numberOfHolders(apiEndpoint) {
-//     var holders=0
-//     return fetch(apiEndpoint)
-//     .then(function(response){
-//         return response.json()
-//     })
-//     .then(function(data){
-//         // return data.data.pagination.total_count
-//         try{
-//             //no of holders, price, volume, message on percentage change in price and holders and volume every 5 min
-//             //console.log (data.data.pagination.total_count)
-//             holders=data.data.pagination.total_count
-//             return holders
+async function numberOfHolders(apiEndpoint) {
+    var holders=0
+    return fetch(apiEndpoint)
+    .then(function(response){
+        return response.json()
+    })
+    .then(function(data){
+        // return data.data.pagination.total_count
+        try{
+            //no of holders, price, volume, message on percentage change in price and holders and volume every 5 min
+            //console.log (data.data.pagination.total_count)
+            holders=data.data.pagination.total_count
+            console.log("API Called")
+            return holders
 
-//         }catch(err){
-//             console.log(err)
-//         }        
-//     })
-// }
+        }catch(err){
+            console.log("error: "+err)
+        }        
+    })
+}
 
 //----------------------------------------------------------------------------------------------------------------------------
 
-// async function main(){
+async function main(){
 
-//     var totalTokens=tokenAddressArray.length
+    console.log("API main function reached")
 
-//     for(let index=0 ; index < totalTokens ; index++){
+    chainIDArray=require("./app").chainIDArray
+    tokenAddressArray=require("./app").tokenAddressArray
 
-//         const chainID=chainIDArray[index]
-//         const tokenAddress=tokenAddressArray[index]
+    if(chainIDArray != undefined || tokenAddressArray != undefined){
+        var totalTokens=tokenAddressArray.length
 
-//         const apiEndpoint=apiEndpointbase+chainID+'/tokens'+tokenAddress+
-//                           '/token_holders/?quote-currency=USD&format=JSON&page-size='+
-//                           listSize+'&page-number=0&key='+covalentAPIKey
+        for(let index=0 ; index < totalTokens ; index++){
+
+            const chainID="/"+chainIDArray[index]
+            const tokenAddress="/"+tokenAddressArray[index]
+
+            if(chainID == undefined || tokenAddress == undefined)   continue
+
+            const apiEndpoint=apiEndpointBase+chainID+'/tokens'+tokenAddress+
+                              '/token_holders/?quote-currency=USD&format=JSON&page-size='+
+                              listSize+'&page-number=0&key='+covalentAPIKey
     
-//         var totalHoldersOfCurrentToken=await numberOfHolders(apiEndpoint) 
-//         console.log(totalHoldersOfCurrentToken)
+            var totalHoldersOfCurrentToken=await numberOfHolders(apiEndpoint) 
 
-//         if(tokenHoldersArray.length < totalTokens)  tokenHoldersArray.push(totalHoldersOfCurrentToken) 
-//         else{
+            console.log("API Endpoint: "+apiEndpoint)
+            console.log("total holders of current token: "+totalHoldersOfCurrentToken)
 
-//             var percentageDifferenceOfHolders = (( totalHoldersOfCurrentToken - tokenHoldersArray[index])/tokenHoldersArray[index])*100
-//             if(Math.abs(percentageDifferenceOfHolders) >= desiredPercentageChange){
+            if(tokenHoldersArray.length < totalTokens)  tokenHoldersArray.push(totalHoldersOfCurrentToken) 
+            else{
 
-//                 let change=""
+                var percentageDifferenceOfHolders = (( totalHoldersOfCurrentToken - tokenHoldersArray[index])/tokenHoldersArray[index])*100
+                if(Math.abs(percentageDifferenceOfHolders) >= desiredPercentageChange){
 
-//                 if(percentageDifferenceOfHolders < 0) change="DECREASE"
-//                 else    change="INCREASE"
+                    let change=""
 
-//                 sendAlert(change, percentageDifferenceOfHolders, tokenHoldersArray[index], totalHoldersOfCurrentToken)
+                    if(percentageDifferenceOfHolders < 0) change="DECREASE"
+                    else    change="INCREASE"
 
-//             }
+                    sendAlert(change, percentageDifferenceOfHolders, tokenHoldersArray[index], totalHoldersOfCurrentToken)
 
-//         }
+                }
 
-//         tokenHoldersArray[index] = totalHoldersOfCurrentToken
+                tokenHoldersArray[index] = totalHoldersOfCurrentToken //temporary statement
 
-//     }
+            }
+
+            // tokenHoldersArray[index] = totalHoldersOfCurrentToken
+
+        }
+    }
     
-// }
+    
+}
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
-// setInterval(main,1000*5)
+ setInterval(main,1000*5)
